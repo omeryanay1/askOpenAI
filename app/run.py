@@ -1,14 +1,25 @@
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
+
+def create_app():
+    app = Flask(__name__)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://myuser:secret@localhost:5432/mydatabase'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    db.init_app(app)
+
+    return app
+
+app = create_app()
+
 from flask import request, jsonify
-from .models import db, Question
 import google.generativeai as genai
-from .run import app 
 
 @app.route('/ask', methods=['POST'])
 def ask():
-    # Check if the table is empty and create it if necessary
-    if db.session.query(Question).count() == 0:
-        db.create_all()  # Ensure tables are created
-
+    from models import Question
     try:
         content = request.json
         question = content.get('question')
@@ -20,7 +31,7 @@ def ask():
         model = genai.GenerativeModel('gemini-pro')
         response = model.generate_content(f'Answer the following question: {question}')
         answer = response.text
-        
+
         new_entry = Question(query=question, answer=answer)
         db.session.add(new_entry)
         db.session.commit()
@@ -28,3 +39,8 @@ def ask():
         return jsonify(question=question, answer=answer), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+    
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5004, debug=True)
