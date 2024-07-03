@@ -1,25 +1,26 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
-db = SQLAlchemy()
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@flask_db:5432/mydatabase'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-def create_app():
-    app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://myuser:secret@localhost:5432/mydatabase'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    db.init_app(app)
+db = SQLAlchemy(app)
+class Question(db.Model):
+    __table_args__ = {'extend_existing': True}
+    __tablename__ = 'questions'
+    id = db.Column(db.Integer, primary_key=True)
+    query = db.Column(db.String, nullable=False)
+    answer = db.Column(db.String, nullable=False)
 
-    return app
-
-app = create_app()
-
+app.app_context().push()
+db.create_all()
 from flask import request, jsonify
 import google.generativeai as genai
 
 @app.route('/ask', methods=['POST'])
 def ask():
-    from models import Question
     try:
         content = request.json
         question = content.get('question')
@@ -43,4 +44,4 @@ def ask():
     
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5004, debug=True)
+    app.run(host='0.0.0.0', port=5001, debug=True)

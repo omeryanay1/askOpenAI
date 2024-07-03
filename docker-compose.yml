@@ -1,26 +1,27 @@
-version: '3.8'
+version: '3.9'
 
 services:
   web:
+    image: dockerhub-flask_live_app:1.0.0
+    environment: 
+      - DB_URL=postgresql://postgres:postgres@flask_db:5432/mydatabase
     build: .
     ports:
-      - "5004:5000"
+      - "5001:5001"
     depends_on:
-      - db
-    environment:
-      SQLALCHEMY_DATABASE_URI: "postgresql://myuser:secret@db:5432/mydatabase"
+      - flask_db
   
-  db:
-    image: postgres:latest
-    restart: always
+  flask_db:
+    image: postgres
+    container_name: flask_db
     environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: secret
-      POSTGRES_DB: mydatabase
+     - POSTGRES_USER=postgres
+     - POSTGRES_PASSWORD=postgres
+     - POSTGRES_DB=mydatabase
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - flask_db:/var/lib/postgresql/data
 
 volumes:
-  pgdata:
+  flask_db: {}
