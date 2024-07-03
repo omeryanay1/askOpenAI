@@ -1,1 +1,1 @@
-# askOpenAI
+This project involves setting up a Flask server with an endpoint to handle questions, integrating with the OpenAI API to get answers, and storing both the questions and answers in a PostgreSQL database. The server and database are dockerized and managed using Docker Compose, with Alembic used for database migrations. Tests are implemented using pytest to ensure the functionality works as expected. The code is organized in a GitHub repository with a clean structure and meaningful commit history.
