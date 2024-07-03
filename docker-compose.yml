@@ -2,7 +2,6 @@ version: '3.9'
 
 services:
   web:
-    image: dockerhub-flask_live_app:1.0.0
     environment: 
       - DB_URL=postgresql://postgres:postgres@flask_db:5432/mydatabase
     build: .
